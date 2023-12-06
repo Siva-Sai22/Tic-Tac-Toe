@@ -13,15 +13,36 @@ body {
 }
 
 .board {
-    padding: 8px;
+    border: 8px solid #facca9;
     display: grid;
     grid-template: repeat(3,100px)/repeat(3,100px);
-    gap: 8px;
-    border: 1px solid black;
 }
 
 .cell {
+    border-collapse: collapse;
     background-color: white;
-    border: 1px solid black;
+    border: 2px solid #666666;
     font-size: 50px;
+    color: white;
+}
+
+.cell1 {
+    background-color: #F38630;
+}
+
+.cell2 {
+    background-color: #69D2E7;
+}
+
+.playagain {
+    font-size: 16px;
+    padding: 8px 16px;
+    border: 1px solid black;
+    border-radius: 8px;
+    background-color: white;
+}
+
+h1 {
+    font-weight: normal;
+    font-size: 28px;
 }
