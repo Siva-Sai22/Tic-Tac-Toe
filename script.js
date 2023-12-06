@@ -1,35 +1,32 @@
-const gamecontroller = (function (playerOneName, playerTwoName) {
+const gameboard = (function () {
+  const rows = 3;
+  const columns = 3;
+  let board = [];
 
-
-  const gameboard = (function () {
-    const rows = 3;
-    const columns = 3;
-    let board = [];
-
-    const clearBoard = () => {
-      for (let i = 0; i < rows; i++) {
-        board[i] = [];
-        for (let j = 0; j < columns; j++) {
-          board[i].push(" ");
-        }
+  const clearBoard = () => {
+    for (let i = 0; i < rows; i++) {
+      board[i] = [];
+      for (let j = 0; j < columns; j++) {
+        board[i].push(" ");
       }
-    };
-    
-    clearBoard();
-    const getBoard = () => board;
+    }
+  };
 
-    const selectCell = (row, column, player) => {
-      board[row][column] = player.marker;
-    };
+  clearBoard();
+  const getBoard = () => board;
 
-    const printBoard = () => {
-      console.log(board);
-    };
+  const selectCell = (row, column, player) => {
+    board[row][column] = player.marker;
+  };
 
-    return { clearBoard, getBoard, selectCell, printBoard };
-  })();
+  const printBoard = () => {
+    console.log(board);
+  };
 
-  
+  return { clearBoard, getBoard, selectCell, printBoard };
+})();
+
+const gamecontroller = (function (playerOneName, playerTwoName) {
   const players = [
     { name: playerOneName, marker: "x" },
     { name: playerTwoName, marker: "o" },
@@ -41,10 +38,11 @@ const gamecontroller = (function (playerOneName, playerTwoName) {
   const switchPlayer = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   };
+  const getActivePlayer = ()=> activePlayer;
 
   const boardIsFull = () => {
     for (let i = 0; i < 3; i++) {
-      for (let j = 0; i < 3; j++) {
+      for (let j = 0; j < 3; j++) {
         if (board[i][j] == " ") return false;
       }
     }
@@ -72,22 +70,90 @@ const gamecontroller = (function (playerOneName, playerTwoName) {
   };
 
   const playRound = (row, column) => {
+    if(board[row][column]!=" ") return;
     gameboard.selectCell(row, column, activePlayer);
 
     if (checkWin(row, column)) {
       gameboard.printBoard();
       console.log(`${activePlayer.name} won.`);
-      gameboard.clearBoard();
+      return 1;
     } else if (boardIsFull()) {
       gameboard.printBoard();
       console.log("Its a draw...");
+      return 2;
     } else {
       switchPlayer();
       printNewRound();
     }
+    return 0;
   };
 
   printNewRound();
 
-  return { playRound };
+  return { playRound, getActivePlayer };
 })("Giorno", "Bruno");
+
+const screencontroller = (function(){
+  const containerDiv = document.querySelector('.container')
+  const playerTurnDiv = document.querySelector('.turn');
+  const boardDiv = document.querySelector('.board');
+  const winnerDiv = document.querySelector('.winner');
+
+  const updateScreen = () => {
+    boardDiv.textContent="";
+
+    const board = gameboard.getBoard();
+    const activePlayer = gamecontroller.getActivePlayer();
+
+    playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+
+    for(let i=0;i<3;i++){
+      for(let j=0;j<3;j++){
+        const cellButton = document.createElement('button');
+        cellButton.classList.add('cell');
+
+        cellButton.dataset.index = [i,j];
+        cellButton.textContent=board[i][j];
+        boardDiv.appendChild(cellButton);
+      }
+    }
+  }
+
+  const clickHandlerPlayAgain = ()=>{
+    gameboard.clearBoard();
+    updateScreen();
+    boardDiv.addEventListener("click",clickHandlerBoard);
+    const playAgainBtn = document.querySelector('.playagain');
+    containerDiv.removeChild(playAgainBtn);
+  }
+
+  const playAgain = ()=>{
+    const playAgainBtn = document.createElement('button');
+    playAgainBtn.classList.add('playagain');
+    playAgainBtn.textContent = "Play Again";
+    containerDiv.append(playAgainBtn);
+    playAgainBtn.addEventListener('click', clickHandlerPlayAgain);
+  }
+
+  const clickHandlerBoard=(e)=>{
+    const selectedCell = e.target.dataset.index;
+
+    if(!selectedCell) return;
+    let a = gamecontroller.playRound(parseInt(selectedCell[0]),parseInt(selectedCell[2]));
+    updateScreen();
+    if(a===1) {
+      winnerDiv.textContent = `${gamecontroller.getActivePlayer().name
+      } won.`
+      boardDiv.removeEventListener('click',clickHandlerBoard);
+      playAgain();
+    }else if(a===2){
+      winnerDiv.textContent = 'Its a draw.'
+      boardDiv.removeEventListener('click',clickHandlerBoard);
+      playAgain();
+    }
+  }
+
+  boardDiv.addEventListener("click",clickHandlerBoard);
+
+  updateScreen();
+})();

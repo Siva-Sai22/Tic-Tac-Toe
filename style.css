@@ -1,0 +1,27 @@
+body {
+    box-sizing: border-box;
+    padding: 0px;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.board {
+    padding: 8px;
+    display: grid;
+    grid-template: repeat(3,100px)/repeat(3,100px);
+    gap: 8px;
+    border: 1px solid black;
+}
+
+.cell {
+    background-color: white;
+    border: 1px solid black;
+    font-size: 50px;
+}
